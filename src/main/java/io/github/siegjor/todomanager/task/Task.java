@@ -1,6 +1,6 @@
-package io.github.siegjor.todomanager.api.task;
+package io.github.siegjor.todomanager.task;
 
-import io.github.siegjor.todomanager.api.user.User;
+import io.github.siegjor.todomanager.customer.Customer;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -26,6 +26,6 @@ public class Task {
     private LocalDateTime createdAt;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
 }

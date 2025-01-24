@@ -1,6 +1,6 @@
-package io.github.siegjor.todomanager.api.user;
+package io.github.siegjor.todomanager.customer;
 
-import io.github.siegjor.todomanager.api.task.Task;
+import io.github.siegjor.todomanager.task.Task;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -10,15 +10,15 @@ import java.util.UUID;
 
 @Entity
 @Data
-@Table(name = "user")
-public class User {
+@Table(name = "customer")
+public class Customer {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID userId;
+    private UUID customerId;
 
-    @Column(name = "name", nullable = false, length = 100)
-    private String name;
+    @Column(name = "username", nullable = false, length = 100)
+    private String username;
 
     @Column(name = "password", nullable = false)
     private String password;
@@ -26,6 +26,6 @@ public class User {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "customer")
     private List<Task> tasks;
 }

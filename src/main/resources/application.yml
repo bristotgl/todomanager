@@ -4,7 +4,14 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5433/todomanager
     name: todomanagerdb
+    username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
   jpa:
     show-sql: true
+  flyway:
+    locations: classpath:db/migration
+
+#logging:
+#  level:
+#    root: debug
