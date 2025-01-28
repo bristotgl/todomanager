@@ -4,6 +4,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Locale;
+
 @RestController
 @RequestMapping("/customers")
 public class CustomerController {
@@ -20,9 +22,9 @@ public class CustomerController {
     }
 
     @PostMapping
-    public ResponseEntity<CustomerResponse> createCustomer(@RequestBody CustomerRequest request) {
-        CustomerResponse response = customerService.createUser(request);
-
+    public ResponseEntity<CustomerResponse> createCustomer(@RequestBody CustomerRequest request, Locale locale) {
+        Customer customer = customerService.createCustomer(request, locale);
+        CustomerResponse response = CustomerMapper.INSTANCE.customerToCustomerResponse(customer);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }

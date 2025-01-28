@@ -12,9 +12,11 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.OffsetDateTime;
+import java.util.Locale;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -34,18 +36,26 @@ public class CustomerControllerTest {
     private CustomerService customerService;
 
     private CustomerRequest customerRequest;
-    private CustomerResponse customerResponse;
+    private Customer customer;
 
     @BeforeEach
     public void setUp() {
         UUID mockUuid = UUID.randomUUID();
-        customerRequest = new CustomerRequest("John Doe", "12345");
-        customerResponse = new CustomerResponse(mockUuid, "John Doe", OffsetDateTime.now());
+        String mockUsername = "John Doe";
+        String mockPassword = "password";
+        OffsetDateTime mockCreatedAt = OffsetDateTime.now();
+
+        customerRequest = new CustomerRequest(mockUsername, mockPassword);
+        customer = new Customer();
+        customer.setCustomerId(mockUuid);
+        customer.setUsername(mockUsername);
+        customer.setPassword(mockPassword);
+        customer.setCreatedAt(mockCreatedAt);
     }
 
     @Test
     public void shouldCreateCustomer() throws Exception {
-        when(customerService.createUser(any(CustomerRequest.class))).thenReturn(customerResponse);
+        when(customerService.createCustomer(any(CustomerRequest.class), eq(Locale.ENGLISH))).thenReturn(customer);
 
         String customerRequestJson = objectMapper.writeValueAsString(customerRequest);
 
@@ -53,10 +63,10 @@ public class CustomerControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(customerRequestJson))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.customerId").value(customerResponse.customerId().toString()))
-                .andExpect(jsonPath("$.username").value(customerResponse.username()))
+                .andExpect(jsonPath("$.customerId").value(customer.getCustomerId().toString()))
+                .andExpect(jsonPath("$.username").value(customer.getUsername()))
                 .andExpect(jsonPath("$.createdAt").exists());
 
-        Mockito.verify(customerService).createUser(any(CustomerRequest.class));
+        Mockito.verify(customerService).createCustomer(any(CustomerRequest.class), eq(Locale.ENGLISH));
     }
 }
