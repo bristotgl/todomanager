@@ -4,7 +4,7 @@ import io.github.siegjor.todomanager.customer.Customer;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
@@ -19,13 +19,21 @@ public class Task {
     @Column(name = "title", nullable = false, length = 100)
     private String title;
 
-    @Column(name = "description", nullable = false)
+    @Column(name = "description", nullable = false, length = 280)
     private String description;
 
+    @Column(name = "is_completed", nullable = false)
+    private boolean isCompleted = false;
+
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    private OffsetDateTime createdAt;
 
     @ManyToOne
-    @JoinColumn(name = "customer_id")
+    @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
+
+    @PrePersist
+    private void onCreate() {
+        this.createdAt = OffsetDateTime.now();
+    }
 }
