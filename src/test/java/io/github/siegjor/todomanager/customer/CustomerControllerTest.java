@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -19,6 +20,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(CustomerController.class)
 public class CustomerControllerTest {
 
@@ -51,8 +53,8 @@ public class CustomerControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(customerRequestJson))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(customerResponse.customerId().toString()))
-                .andExpect(jsonPath("$.name").value(customerResponse.username()))
+                .andExpect(jsonPath("$.customerId").value(customerResponse.customerId().toString()))
+                .andExpect(jsonPath("$.username").value(customerResponse.username()))
                 .andExpect(jsonPath("$.createdAt").exists());
 
         Mockito.verify(customerService).createUser(any(CustomerRequest.class));
