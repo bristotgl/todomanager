@@ -18,8 +18,11 @@ public class Customer {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID customerId;
 
-    @Column(name = "username", nullable = false, length = 100)
+    @Column(name = "username", nullable = false, length = 12)
     private String username;
+
+    @Column(name = "email", nullable = false, length = 40)
+    private String email;
 
     @Column(name = "password", nullable = false, length = 72)
     private String password;

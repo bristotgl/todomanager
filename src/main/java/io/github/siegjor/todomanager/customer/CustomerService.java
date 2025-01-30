@@ -23,11 +23,12 @@ public class CustomerService {
     public Customer createCustomer(CustomerRequest request, Locale locale) throws UsernameAlreadyTakenException {
         boolean isUsernameAlreadyTaken = customerRepository.existsByUsername(request.username());
         if (isUsernameAlreadyTaken) {
-            throw new UsernameAlreadyTakenException(messageSource.getMessage(MessageConstants.USERNAME_ALREADY_TAKEN, null, locale));
+            throw new UsernameAlreadyTakenException(messageSource.getMessage("validation.username.taken", null, locale));
         }
 
         Customer customer = new Customer();
         customer.setUsername(request.username());
+        customer.setEmail(request.email());
 
         String encodedPassword = passwordEncoder.encode(request.password());
         customer.setPassword(encodedPassword);

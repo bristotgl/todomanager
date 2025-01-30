@@ -1,5 +1,6 @@
 package io.github.siegjor.todomanager.customer;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,7 @@ public class CustomerController {
     }
 
     @PostMapping
-    public ResponseEntity<CustomerResponse> createCustomer(@RequestBody CustomerRequest request, Locale locale) {
+    public ResponseEntity<CustomerResponse> createCustomer(@Valid @RequestBody CustomerRequest request, Locale locale) {
         Customer customer = customerService.createCustomer(request, locale);
         CustomerResponse response = CustomerMapper.INSTANCE.customerToCustomerResponse(customer);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);

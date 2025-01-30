@@ -41,11 +41,12 @@ public class CustomerControllerTest {
     @BeforeEach
     public void setUp() {
         UUID mockUuid = UUID.randomUUID();
-        String mockUsername = "John Doe";
-        String mockPassword = "password";
+        String mockUsername = "Kaladin";
+        String mockEmail = "kaladin@email.com";
+        String mockPassword = "battle";
         OffsetDateTime mockCreatedAt = OffsetDateTime.now();
 
-        customerRequest = new CustomerRequest(mockUsername, mockPassword);
+        customerRequest = new CustomerRequest(mockUsername, mockEmail, mockPassword);
         customer = new Customer();
         customer.setCustomerId(mockUuid);
         customer.setUsername(mockUsername);
