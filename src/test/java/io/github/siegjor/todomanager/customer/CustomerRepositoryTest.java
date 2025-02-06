@@ -20,6 +20,7 @@ public class CustomerRepositoryTest {
     public void shouldSaveAndFetchCustomer() {
         Customer customer = new Customer();
         customer.setUsername("Dalinar");
+        customer.setEmail("dalinar@email.com");
         customer.setPassword("thewayofkings");
 
         Customer savedCustomer = customerRepository.save(customer);
@@ -27,6 +28,7 @@ public class CustomerRepositoryTest {
 
         assertThat(fetchedCustomer).isPresent();
         assertThat(fetchedCustomer.get().getUsername()).isEqualTo("Dalinar");
+        assertThat(fetchedCustomer.get().getEmail()).isEqualTo("dalinar@email.com");
         assertThat(fetchedCustomer.get().getPassword()).isEqualTo("thewayofkings");
         assertThat(fetchedCustomer.get().getCreatedAt()).isNotNull();
     }
