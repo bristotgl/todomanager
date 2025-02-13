@@ -1,12 +1,14 @@
 package io.github.siegjor.todomanager.customer;
 
 import jakarta.validation.Valid;
+import jakarta.websocket.server.PathParam;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/customers")
@@ -22,6 +24,13 @@ public class CustomerController {
     public ResponseEntity<List<CustomerResponse>> getAllCustomers() {
         List<Customer> customers = customerService.getAllCustomers();
         List<CustomerResponse> response = customers.stream().map(CustomerMapper.INSTANCE::customerToCustomerResponse).toList();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{customerId}")
+    public ResponseEntity<CustomerResponse> getCustomerById(@PathParam("customerId") String customerId, Locale locale) {
+        Customer customer = customerService.getCustomerById(UUID.fromString(customerId), locale);
+        CustomerResponse response = CustomerMapper.INSTANCE.customerToCustomerResponse(customer);
         return ResponseEntity.ok(response);
     }
 

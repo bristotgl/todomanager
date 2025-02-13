@@ -1,6 +1,7 @@
 package io.github.siegjor.todomanager.customer;
 
 import io.github.siegjor.todomanager.MessageConstants;
+import io.github.siegjor.todomanager.exception.ResourceNotFoundException;
 import io.github.siegjor.todomanager.exception.UsernameAlreadyTakenException;
 import org.springframework.context.MessageSource;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 @Service
 public class CustomerService {
@@ -41,5 +43,10 @@ public class CustomerService {
 
     public List<Customer> getAllCustomers() {
         return customerRepository.findAll();
+    }
+
+    public Customer getCustomerById(UUID customerId, Locale locale) {
+        return customerRepository.findById(customerId)
+                .orElseThrow(() -> new ResourceNotFoundException(messageSource.getMessage("error.customer.notFound", new Object[]{customerId}, locale)));
     }
 }

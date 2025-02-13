@@ -88,4 +88,18 @@ public class CustomerControllerTest {
 
         Mockito.verify(customerService).getAllCustomers();
     }
+
+    @Test
+    public void shouldGetCustomerById() throws Exception {
+        when(customerService.getCustomerById(eq(customer.getCustomerId()), eq(Locale.ENGLISH))).thenReturn(customer);
+
+        mockMvc.perform(get("/customers/{customerId}", customer.getCustomerId().toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.customerId").value(customer.getCustomerId().toString()))
+                .andExpect(jsonPath("$.username").value(customer.getUsername()))
+                .andExpect(jsonPath("$.email").value(customer.getEmail()))
+                .andExpect(jsonPath("$.createdAt").exists());
+
+        Mockito.verify(customerService).getCustomerById(eq(customer.getCustomerId()), eq(Locale.ENGLISH));
+    }
 }
