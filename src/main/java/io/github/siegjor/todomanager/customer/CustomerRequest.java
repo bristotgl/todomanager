@@ -1,6 +1,5 @@
 package io.github.siegjor.todomanager.customer;
 
-import io.github.siegjor.todomanager.MessageConstants;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 

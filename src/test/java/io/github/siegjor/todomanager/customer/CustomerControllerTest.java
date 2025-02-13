@@ -12,12 +12,12 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.OffsetDateTime;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -50,6 +50,7 @@ public class CustomerControllerTest {
         customer = new Customer();
         customer.setCustomerId(mockUuid);
         customer.setUsername(mockUsername);
+        customer.setEmail(mockEmail);
         customer.setPassword(mockPassword);
         customer.setCreatedAt(mockCreatedAt);
     }
@@ -66,8 +67,25 @@ public class CustomerControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.customerId").value(customer.getCustomerId().toString()))
                 .andExpect(jsonPath("$.username").value(customer.getUsername()))
+                .andExpect(jsonPath("$.email").value(customer.getEmail()))
                 .andExpect(jsonPath("$.createdAt").exists());
 
         Mockito.verify(customerService).createCustomer(any(CustomerRequest.class), eq(Locale.ENGLISH));
+    }
+
+    @Test
+    public void shouldGetAllCustomers() throws Exception {
+        List<Customer> customers = Collections.singletonList(customer);
+        when(customerService.getAllCustomers()).thenReturn(customers);
+
+        mockMvc.perform(get("/customers"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()").value(1))
+                .andExpect(jsonPath("$[0].customerId").value(customer.getCustomerId().toString()))
+                .andExpect(jsonPath("$[0].username").value(customer.getUsername()))
+                .andExpect(jsonPath("$[0].email").value(customer.getEmail()))
+                .andExpect(jsonPath("$[0].createdAt").exists());
+
+        Mockito.verify(customerService).getAllCustomers();
     }
 }

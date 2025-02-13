@@ -2,6 +2,10 @@ ALTER TABLE task
 ALTER COLUMN description TYPE VARCHAR(280);
 
 ALTER TABLE customer
-ADD CONSTRAINT unique_username UNIQUE (username)
-ALTER COLUMN password TYPE VARCHAR(60)
+ADD CONSTRAINT unique_username UNIQUE (username);
+
+ALTER TABLE customer
+ALTER COLUMN password TYPE VARCHAR(60);
+
+ALTER TABLE customer
 ADD email VARCHAR(40) NOT NULL UNIQUE;

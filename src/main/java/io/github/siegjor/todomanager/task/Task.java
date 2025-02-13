@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Entity
 @Data
-@Table(name = "task")
+@Table(name = "task", schema = "public")
 public class Task {
     @Id
     @Column(name = "task_id")

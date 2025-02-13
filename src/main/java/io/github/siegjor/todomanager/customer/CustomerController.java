@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Locale;
 
 @RestController
@@ -18,8 +19,10 @@ public class CustomerController {
     }
 
     @GetMapping
-    public boolean getCustomers() {
-        return true;
+    public ResponseEntity<List<CustomerResponse>> getAllCustomers() {
+        List<Customer> customers = customerService.getAllCustomers();
+        List<CustomerResponse> response = customers.stream().map(CustomerMapper.INSTANCE::customerToCustomerResponse).toList();
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping

@@ -12,7 +12,11 @@ import org.springframework.context.MessageSource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
+
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -61,8 +65,8 @@ public class CustomerServiceTest {
         assertEquals(createdCustomer.getEmail(), customerRequest.email());
         assertEquals(createdCustomer.getPassword(), encodedPassword);
 
-        verify(customerRepository, times(1)).save(any(Customer.class));
-        verify(passwordEncoder, times(1)).encode(rawPassword);
+        verify(customerRepository).save(any(Customer.class));
+        verify(passwordEncoder).encode(rawPassword);
     }
 
     @Test
@@ -73,6 +77,21 @@ public class CustomerServiceTest {
         assertThrows(UsernameAlreadyTakenException.class, () -> customerService.createCustomer(customerRequest, Locale.ENGLISH));
 
         verify(customerRepository, never()).save(any(Customer.class));
+    }
+
+    @Test
+    void shouldReturnAllCustomers() {
+        Customer customer = new Customer();
+        customer.setUsername("Jasnah");
+        customer.setEmail("kholin@email.com");
+        customer.setPassword("urithiru");
+
+        when(customerService.getAllCustomers()).thenReturn(Collections.singletonList(customer));
+
+        List<Customer> customers = customerRepository.findAll();
+
+        assertThat(customers).hasSize(1);
+        assertThat(customers).contains(customer);
     }
 
 }
