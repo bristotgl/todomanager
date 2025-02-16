@@ -16,9 +16,9 @@ import java.util.*;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -56,7 +56,7 @@ public class CustomerControllerTest {
     }
 
     @Test
-    public void shouldCreateCustomer() throws Exception {
+    public void whenCreateCustomer_thenReturnsCreatedCustomer() throws Exception {
         when(customerService.createCustomer(any(CustomerRequest.class), eq(Locale.ENGLISH))).thenReturn(customer);
 
         String customerRequestJson = objectMapper.writeValueAsString(customerRequest);
@@ -74,7 +74,7 @@ public class CustomerControllerTest {
     }
 
     @Test
-    public void shouldGetAllCustomers() throws Exception {
+    public void whenGetAllCustomers_thenReturnsListOfCustomers() throws Exception {
         List<Customer> customers = Collections.singletonList(customer);
         when(customerService.getAllCustomers()).thenReturn(customers);
 
@@ -90,7 +90,7 @@ public class CustomerControllerTest {
     }
 
     @Test
-    public void shouldGetCustomerById() throws Exception {
+    public void whenGetCustomerById_thenReturnsCustomer() throws Exception {
         when(customerService.getCustomerById(eq(customer.getCustomerId()), eq(Locale.ENGLISH))).thenReturn(customer);
 
         mockMvc.perform(get("/customers/{customerId}", customer.getCustomerId().toString()))
@@ -101,5 +101,39 @@ public class CustomerControllerTest {
                 .andExpect(jsonPath("$.createdAt").exists());
 
         Mockito.verify(customerService).getCustomerById(eq(customer.getCustomerId()), eq(Locale.ENGLISH));
+    }
+
+    @Test
+    public void whenUpdateCustomerById_thenReturnsUpdatedCustomer() throws Exception {
+        UpdateCustomerRequest request = new UpdateCustomerRequest(customer.getUsername(), customer.getEmail());
+
+        Customer editedCustomer = new Customer();
+        editedCustomer.setCustomerId(customer.getCustomerId());
+        editedCustomer.setUsername(request.username());
+        editedCustomer.setUsername(request.email());
+        editedCustomer.setCreatedAt(OffsetDateTime.now());
+
+        String requestJson = objectMapper.writeValueAsString(request);
+
+        when(customerService.updateCustomerById(eq(customer.getCustomerId()), eq(request), eq(Locale.ENGLISH))).thenReturn(editedCustomer);
+
+        mockMvc.perform(put("/customers/{customerId}", customer.getCustomerId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestJson))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.customerId").value(editedCustomer.getCustomerId().toString()))
+                .andExpect(jsonPath("$.username").value(editedCustomer.getUsername()))
+                .andExpect(jsonPath("$.email").value(editedCustomer.getEmail()))
+                .andExpect(jsonPath("$.createdAt").exists());
+
+        Mockito.verify(customerService).updateCustomerById(eq(customer.getCustomerId()), eq(request), eq(Locale.ENGLISH));
+    }
+
+    @Test
+    public void whenDeleteCustomerById_thenReturnNoContent() throws Exception {
+        mockMvc.perform(delete("/customers/{customerId}", customer.getCustomerId()))
+                .andExpect(status().isNoContent());
+
+        verify(customerService).deleteCustomerById(customer.getCustomerId());
     }
 }

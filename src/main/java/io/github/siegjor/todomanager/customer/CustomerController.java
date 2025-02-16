@@ -1,7 +1,6 @@
 package io.github.siegjor.todomanager.customer;
 
 import jakarta.validation.Valid;
-import jakarta.websocket.server.PathParam;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,9 +26,9 @@ public class CustomerController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{customerId}")
-    public ResponseEntity<CustomerResponse> getCustomerById(@PathParam("customerId") String customerId, Locale locale) {
-        Customer customer = customerService.getCustomerById(UUID.fromString(customerId), locale);
+    @GetMapping(value = "{customerId}")
+    public ResponseEntity<CustomerResponse> getCustomerById(@PathVariable("customerId") UUID customerId, Locale locale) {
+        Customer customer = customerService.getCustomerById(customerId, locale);
         CustomerResponse response = CustomerMapper.INSTANCE.customerToCustomerResponse(customer);
         return ResponseEntity.ok(response);
     }
@@ -40,4 +39,18 @@ public class CustomerController {
         CustomerResponse response = CustomerMapper.INSTANCE.customerToCustomerResponse(customer);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+    @PutMapping(value = "{customerId}")
+    public ResponseEntity<CustomerResponse> updateCustomerById(@PathVariable("customerId") UUID customerId, @Valid @RequestBody UpdateCustomerRequest request, Locale locale) {
+        Customer customer = customerService.updateCustomerById(customerId, request, locale);
+        CustomerResponse response = CustomerMapper.INSTANCE.customerToCustomerResponse(customer);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping(value = "{customerId}")
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    public void deleteCustomerById(@PathVariable("customerId") UUID customerId) {
+        customerService.deleteCustomerById(customerId);
+    }
+
 }

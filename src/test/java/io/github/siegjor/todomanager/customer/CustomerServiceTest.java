@@ -1,12 +1,11 @@
 package io.github.siegjor.todomanager.customer;
 
+import io.github.siegjor.todomanager.exception.ResourceNotFoundException;
 import io.github.siegjor.todomanager.exception.UsernameAlreadyTakenException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.MessageSource;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,9 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -37,21 +34,14 @@ public class CustomerServiceTest {
     @InjectMocks
     private CustomerService customerService;
 
-    private CustomerRequest customerRequest;
-
-    @BeforeEach
-    void setUp() {
-        customerRequest = new CustomerRequest("Dalinar", "dalinar@email.com", "thewayofkings");
-    }
-
     @Test
-    void testCreateCostumer() {
-        String rawPassword = "thewayofkings";
-        String encodedPassword = "hashed_thewayofkings";
+    void shouldCreateCustomerSuccessfully() {
+        CustomerRequest customerRequest = createCustomerRequest();
 
-        Customer customer = new Customer();
-        customer.setUsername("Dalinar");
-        customer.setEmail("dalinar@email.com");
+        String rawPassword = customerRequest.password();
+        String encodedPassword = customerRequest.password() + "_HASHED";
+
+        Customer customer = createCustomer();
         customer.setPassword(encodedPassword);
 
         when(customerRepository.save(any(Customer.class))).thenReturn(customer);
@@ -61,18 +51,20 @@ public class CustomerServiceTest {
         Customer createdCustomer = customerService.createCustomer(customerRequest, Locale.ENGLISH);
 
         assertNotNull(createdCustomer);
-        assertEquals(createdCustomer.getUsername(), customerRequest.username());
-        assertEquals(createdCustomer.getEmail(), customerRequest.email());
-        assertEquals(createdCustomer.getPassword(), encodedPassword);
+        assertEquals(customerRequest.username(), createdCustomer.getUsername());
+        assertEquals(customerRequest.email(), createdCustomer.getEmail());
+        assertEquals(encodedPassword, createdCustomer.getPassword());
 
         verify(customerRepository).save(any(Customer.class));
         verify(passwordEncoder).encode(rawPassword);
     }
 
     @Test
-    void testCreateCustomer_UsernameAlreadyTaken() {
+    void shouldNotCreateCustomerWhenUsernameAlreadyTaken() {
+        CustomerRequest customerRequest = createCustomerRequest();
+
         when(customerRepository.existsByUsername(any(String.class))).thenReturn(true);
-        when(messageSource.getMessage(eq("validation.username.taken"), isNull(), any(Locale.class))).thenReturn("Username is already taken");
+        when(messageSource.getMessage(eq("error.username.taken"), isNull(), any(Locale.class))).thenReturn("Username is already taken");
 
         assertThrows(UsernameAlreadyTakenException.class, () -> customerService.createCustomer(customerRequest, Locale.ENGLISH));
 
@@ -80,18 +72,83 @@ public class CustomerServiceTest {
     }
 
     @Test
-    void shouldReturnAllCustomers() {
-        Customer customer = new Customer();
-        customer.setUsername("Jasnah");
-        customer.setEmail("kholin@email.com");
-        customer.setPassword("urithiru");
+    void shouldRetrieveAllCustomersSuccessfully() {
+        Customer customer = createCustomer();
 
-        when(customerService.getAllCustomers()).thenReturn(Collections.singletonList(customer));
+        when(customerRepository.findAll()).thenReturn(Collections.singletonList(customer));
 
-        List<Customer> customers = customerRepository.findAll();
+        List<Customer> customers = customerService.getAllCustomers();
 
         assertThat(customers).hasSize(1);
         assertThat(customers).contains(customer);
     }
 
+    @Test
+    void shouldRetrieveCustomerByIdSuccessfully() {
+        Customer customer = createCustomer();
+
+        when(customerRepository.findById(customer.getCustomerId())).thenReturn(Optional.of(customer));
+
+        Customer fetchedCustomer = customerService.getCustomerById(customer.getCustomerId(), Locale.ENGLISH);
+
+        assertNotNull(fetchedCustomer);
+        assertEquals(fetchedCustomer.getUsername(), customer.getUsername());
+        assertEquals(fetchedCustomer.getEmail(), customer.getEmail());
+        assertEquals(fetchedCustomer.getPassword(), customer.getPassword());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenCustomerNotFoundById() {
+        Customer customer = createCustomer();
+
+        when(customerRepository.findById(customer.getCustomerId())).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> customerService.getCustomerById(customer.getCustomerId(), Locale.ENGLISH));
+
+        verify(customerRepository).findById(customer.getCustomerId());
+    }
+
+    @Test
+    void shouldUpdateCustomerByIdSuccessfully() {
+        Customer customer = createCustomer();
+
+        UpdateCustomerRequest request = new UpdateCustomerRequest("Shallan", "davar@email.com");
+
+        when(customerRepository.findById(eq(customer.getCustomerId()))).thenReturn(Optional.of(customer));
+        when(customerRepository.save(any(Customer.class))).thenReturn(customer);
+
+        Customer editedCustomer = customerService.updateCustomerById(customer.getCustomerId(), request, Locale.ENGLISH);
+
+        assertNotNull(editedCustomer);
+        assertEquals(customer.getCustomerId(), editedCustomer.getCustomerId());
+        assertEquals(request.username(), editedCustomer.getUsername());
+        assertEquals(request.email(), editedCustomer.getEmail());
+
+        verify(customerRepository).findById(eq(customer.getCustomerId()));
+        verify(customerRepository).save(any(Customer.class));
+    }
+
+    @Test
+    void shouldDeleteCustomerByIdSuccessfully() {
+        Customer customer = createCustomer();
+
+        customerService.deleteCustomerById(customer.getCustomerId());
+
+        verify(customerRepository).deleteById(customer.getCustomerId());
+    }
+
+
+    private Customer createCustomer() {
+        Customer customer = new Customer();
+        customer.setCustomerId(UUID.randomUUID());
+        customer.setUsername("Jasnah");
+        customer.setEmail("kholin@email.com");
+        customer.setPassword("urithiru");
+
+        return customer;
+    }
+
+    private CustomerRequest createCustomerRequest() {
+        return new CustomerRequest("Jasnah", "kholin@email.com", "urithiru");
+    }
 }

@@ -1,9 +1,11 @@
 package io.github.siegjor.todomanager.config;
 
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
+import org.springframework.web.filter.CharacterEncodingFilter;
 
 import java.util.Locale;
 
@@ -16,6 +18,7 @@ public class MessageConfig {
         messageSource.setBasename("classpath:messages");
         messageSource.setDefaultEncoding("UTF-8");
         messageSource.setDefaultLocale(Locale.US);
+        messageSource.setCacheSeconds(1);
         return messageSource;
     }
 }
