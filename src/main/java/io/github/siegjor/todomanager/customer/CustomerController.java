@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 
 @RestController
@@ -27,22 +26,22 @@ public class CustomerController {
     }
 
     @GetMapping(value = "{customerId}")
-    public ResponseEntity<CustomerResponse> getCustomerById(@PathVariable("customerId") UUID customerId, Locale locale) {
-        Customer customer = customerService.getCustomerById(customerId, locale);
+    public ResponseEntity<CustomerResponse> getCustomerById(@PathVariable("customerId") UUID customerId) {
+        Customer customer = customerService.getCustomerById(customerId);
         CustomerResponse response = CustomerMapper.INSTANCE.customerToCustomerResponse(customer);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping
-    public ResponseEntity<CustomerResponse> createCustomer(@Valid @RequestBody CustomerRequest request, Locale locale) {
-        Customer customer = customerService.createCustomer(request, locale);
+    public ResponseEntity<CustomerResponse> createCustomer(@Valid @RequestBody CustomerRequest request) {
+        Customer customer = customerService.createCustomer(request);
         CustomerResponse response = CustomerMapper.INSTANCE.customerToCustomerResponse(customer);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping(value = "{customerId}")
-    public ResponseEntity<CustomerResponse> updateCustomerById(@PathVariable("customerId") UUID customerId, @Valid @RequestBody UpdateCustomerRequest request, Locale locale) {
-        Customer customer = customerService.updateCustomerById(customerId, request, locale);
+    public ResponseEntity<CustomerResponse> updateCustomerById(@PathVariable("customerId") UUID customerId, @Valid @RequestBody UpdateCustomerRequest request) {
+        Customer customer = customerService.updateCustomerById(customerId, request);
         CustomerResponse response = CustomerMapper.INSTANCE.customerToCustomerResponse(customer);
         return ResponseEntity.ok(response);
     }

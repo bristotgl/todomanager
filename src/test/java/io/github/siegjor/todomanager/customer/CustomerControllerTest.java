@@ -57,7 +57,7 @@ public class CustomerControllerTest {
 
     @Test
     public void whenCreateCustomer_thenReturnsCreatedCustomer() throws Exception {
-        when(customerService.createCustomer(any(CustomerRequest.class), eq(Locale.ENGLISH))).thenReturn(customer);
+        when(customerService.createCustomer(any(CustomerRequest.class))).thenReturn(customer);
 
         String customerRequestJson = objectMapper.writeValueAsString(customerRequest);
 
@@ -70,7 +70,7 @@ public class CustomerControllerTest {
                 .andExpect(jsonPath("$.email").value(customer.getEmail()))
                 .andExpect(jsonPath("$.createdAt").exists());
 
-        Mockito.verify(customerService).createCustomer(any(CustomerRequest.class), eq(Locale.ENGLISH));
+        Mockito.verify(customerService).createCustomer(any(CustomerRequest.class));
     }
 
     @Test
@@ -91,7 +91,7 @@ public class CustomerControllerTest {
 
     @Test
     public void whenGetCustomerById_thenReturnsCustomer() throws Exception {
-        when(customerService.getCustomerById(eq(customer.getCustomerId()), eq(Locale.ENGLISH))).thenReturn(customer);
+        when(customerService.getCustomerById(eq(customer.getCustomerId()))).thenReturn(customer);
 
         mockMvc.perform(get("/customers/{customerId}", customer.getCustomerId().toString()))
                 .andExpect(status().isOk())
@@ -100,7 +100,7 @@ public class CustomerControllerTest {
                 .andExpect(jsonPath("$.email").value(customer.getEmail()))
                 .andExpect(jsonPath("$.createdAt").exists());
 
-        Mockito.verify(customerService).getCustomerById(eq(customer.getCustomerId()), eq(Locale.ENGLISH));
+        Mockito.verify(customerService).getCustomerById(eq(customer.getCustomerId()));
     }
 
     @Test
@@ -115,7 +115,7 @@ public class CustomerControllerTest {
 
         String requestJson = objectMapper.writeValueAsString(request);
 
-        when(customerService.updateCustomerById(eq(customer.getCustomerId()), eq(request), eq(Locale.ENGLISH))).thenReturn(editedCustomer);
+        when(customerService.updateCustomerById(eq(customer.getCustomerId()), eq(request))).thenReturn(editedCustomer);
 
         mockMvc.perform(put("/customers/{customerId}", customer.getCustomerId())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -126,7 +126,7 @@ public class CustomerControllerTest {
                 .andExpect(jsonPath("$.email").value(editedCustomer.getEmail()))
                 .andExpect(jsonPath("$.createdAt").exists());
 
-        Mockito.verify(customerService).updateCustomerById(eq(customer.getCustomerId()), eq(request), eq(Locale.ENGLISH));
+        Mockito.verify(customerService).updateCustomerById(eq(customer.getCustomerId()), eq(request));
     }
 
     @Test

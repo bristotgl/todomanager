@@ -7,15 +7,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.MessageSource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
-
-
-import java.util.*;
-
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -28,8 +28,6 @@ public class CustomerServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
-    @Mock
-    private MessageSource messageSource;
 
     @InjectMocks
     private CustomerService customerService;
@@ -48,7 +46,7 @@ public class CustomerServiceTest {
         when(customerRepository.existsByUsername(any(String.class))).thenReturn(false);
         when(passwordEncoder.encode(eq(rawPassword))).thenReturn(encodedPassword);
 
-        Customer createdCustomer = customerService.createCustomer(customerRequest, Locale.ENGLISH);
+        Customer createdCustomer = customerService.createCustomer(customerRequest);
 
         assertNotNull(createdCustomer);
         assertEquals(customerRequest.username(), createdCustomer.getUsername());
@@ -64,9 +62,9 @@ public class CustomerServiceTest {
         CustomerRequest customerRequest = createCustomerRequest();
 
         when(customerRepository.existsByUsername(any(String.class))).thenReturn(true);
-        when(messageSource.getMessage(eq("error.username.taken"), isNull(), any(Locale.class))).thenReturn("Username is already taken");
+        when(customerRepository.existsByUsername(any(String.class))).thenReturn(true);
 
-        assertThrows(UsernameAlreadyTakenException.class, () -> customerService.createCustomer(customerRequest, Locale.ENGLISH));
+        assertThrows(UsernameAlreadyTakenException.class, () -> customerService.createCustomer(customerRequest));
 
         verify(customerRepository, never()).save(any(Customer.class));
     }
@@ -89,7 +87,7 @@ public class CustomerServiceTest {
 
         when(customerRepository.findById(customer.getCustomerId())).thenReturn(Optional.of(customer));
 
-        Customer fetchedCustomer = customerService.getCustomerById(customer.getCustomerId(), Locale.ENGLISH);
+        Customer fetchedCustomer = customerService.getCustomerById(customer.getCustomerId());
 
         assertNotNull(fetchedCustomer);
         assertEquals(fetchedCustomer.getUsername(), customer.getUsername());
@@ -103,7 +101,7 @@ public class CustomerServiceTest {
 
         when(customerRepository.findById(customer.getCustomerId())).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> customerService.getCustomerById(customer.getCustomerId(), Locale.ENGLISH));
+        assertThrows(ResourceNotFoundException.class, () -> customerService.getCustomerById(customer.getCustomerId()));
 
         verify(customerRepository).findById(customer.getCustomerId());
     }
@@ -117,7 +115,7 @@ public class CustomerServiceTest {
         when(customerRepository.findById(eq(customer.getCustomerId()))).thenReturn(Optional.of(customer));
         when(customerRepository.save(any(Customer.class))).thenReturn(customer);
 
-        Customer editedCustomer = customerService.updateCustomerById(customer.getCustomerId(), request, Locale.ENGLISH);
+        Customer editedCustomer = customerService.updateCustomerById(customer.getCustomerId(), request);
 
         assertNotNull(editedCustomer);
         assertEquals(customer.getCustomerId(), editedCustomer.getCustomerId());

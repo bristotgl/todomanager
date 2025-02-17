@@ -3,38 +3,38 @@ package io.github.siegjor.todomanager.customer;
 import io.github.siegjor.todomanager.exception.EmailAlreadyRegisteredException;
 import io.github.siegjor.todomanager.exception.ResourceNotFoundException;
 import io.github.siegjor.todomanager.exception.UsernameAlreadyTakenException;
+import io.github.siegjor.todomanager.utils.MessageKeys;
+import io.github.siegjor.todomanager.utils.MessageUtil;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import org.springframework.context.MessageSource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 
 @Service
 public class CustomerService {
     private final CustomerRepository customerRepository;
     private final PasswordEncoder passwordEncoder;
-    private final MessageSource messageSource;
+    private final MessageUtil messageUtil;
 
-    public CustomerService(CustomerRepository customerRepository, PasswordEncoder passwordEncoder, MessageSource messageSource) {
+    public CustomerService(CustomerRepository customerRepository, PasswordEncoder passwordEncoder, MessageUtil messageUtil) {
         this.customerRepository = customerRepository;
         this.passwordEncoder = passwordEncoder;
-        this.messageSource = messageSource;
+        this.messageUtil = messageUtil;
     }
 
     @Transactional
-    public Customer createCustomer(CustomerRequest request, Locale locale) throws UsernameAlreadyTakenException, EmailAlreadyRegisteredException {
+    public Customer createCustomer(CustomerRequest request) throws UsernameAlreadyTakenException, EmailAlreadyRegisteredException {
         boolean isUsernameTaken = customerRepository.existsByUsername(request.username());
         if (isUsernameTaken) {
-            throw new UsernameAlreadyTakenException(messageSource.getMessage("error.username.taken", null, locale));
+            throw new UsernameAlreadyTakenException(messageUtil.getMessage(MessageKeys.USERNAME_TAKEN));
         }
 
         boolean isEmailTaken = customerRepository.existsByEmail(request.email());
         if (isEmailTaken) {
-            throw new EmailAlreadyRegisteredException(messageSource.getMessage("error.email.registered", null, locale));
+            throw new EmailAlreadyRegisteredException(messageUtil.getMessage(MessageKeys.EMAIL_REGISTERED));
         }
 
         Customer customer = new Customer();
@@ -52,23 +52,18 @@ public class CustomerService {
         return customerRepository.findAll();
     }
 
-    public Customer getCustomerById(UUID customerId, Locale locale) {
+    public Customer getCustomerById(UUID customerId) {
         return customerRepository.findById(customerId)
-                .orElseThrow(() -> new ResourceNotFoundException(messageSource.getMessage("error.customer.not_found", new Object[]{customerId}, locale)));
+                .orElseThrow(() -> new ResourceNotFoundException(messageUtil.getMessage(MessageKeys.CUSTOMER_NOT_FOUND)));
     }
 
     @Transactional
-    public Customer updateCustomerById(UUID customerId, @Valid UpdateCustomerRequest request, Locale locale) {
+    public Customer updateCustomerById(UUID customerId, @Valid UpdateCustomerRequest request) {
         Customer fetchedCustomer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new ResourceNotFoundException(messageSource.getMessage("error.customer.not_found", new Object[]{customerId}, locale)));
+                .orElseThrow(() -> new ResourceNotFoundException(messageUtil.getMessage(MessageKeys.CUSTOMER_NOT_FOUND)));
 
-        if (request.username() != null && !request.username().isEmpty() && !request.username().isBlank()) {
-            fetchedCustomer.setUsername(request.username());
-        }
-
-        if (request.email() != null && !request.email().isEmpty() && !request.email().isBlank()) {
-            fetchedCustomer.setEmail(request.email());
-        }
+        fetchedCustomer.setUsername(request.username());
+        fetchedCustomer.setEmail(request.email());
 
         return customerRepository.save(fetchedCustomer);
     }
