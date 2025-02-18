@@ -4,7 +4,6 @@ import io.github.siegjor.todomanager.exception.EmailAlreadyRegisteredException;
 import io.github.siegjor.todomanager.exception.ResourceNotFoundException;
 import io.github.siegjor.todomanager.exception.UsernameAlreadyTakenException;
 import io.github.siegjor.todomanager.utils.MessageKeys;
-import io.github.siegjor.todomanager.utils.MessageUtil;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,24 +16,22 @@ import java.util.UUID;
 public class CustomerService {
     private final CustomerRepository customerRepository;
     private final PasswordEncoder passwordEncoder;
-    private final MessageUtil messageUtil;
 
-    public CustomerService(CustomerRepository customerRepository, PasswordEncoder passwordEncoder, MessageUtil messageUtil) {
+    public CustomerService(CustomerRepository customerRepository, PasswordEncoder passwordEncoder) {
         this.customerRepository = customerRepository;
         this.passwordEncoder = passwordEncoder;
-        this.messageUtil = messageUtil;
     }
 
     @Transactional
     public Customer createCustomer(CustomerRequest request) throws UsernameAlreadyTakenException, EmailAlreadyRegisteredException {
         boolean isUsernameTaken = customerRepository.existsByUsername(request.username());
         if (isUsernameTaken) {
-            throw new UsernameAlreadyTakenException(messageUtil.getMessage(MessageKeys.USERNAME_TAKEN));
+            throw new UsernameAlreadyTakenException(MessageKeys.USERNAME_TAKEN);
         }
 
         boolean isEmailTaken = customerRepository.existsByEmail(request.email());
         if (isEmailTaken) {
-            throw new EmailAlreadyRegisteredException(messageUtil.getMessage(MessageKeys.EMAIL_REGISTERED));
+            throw new EmailAlreadyRegisteredException(MessageKeys.EMAIL_REGISTERED);
         }
 
         Customer customer = new Customer();
@@ -54,13 +51,13 @@ public class CustomerService {
 
     public Customer getCustomerById(UUID customerId) {
         return customerRepository.findById(customerId)
-                .orElseThrow(() -> new ResourceNotFoundException(messageUtil.getMessage(MessageKeys.CUSTOMER_NOT_FOUND)));
+                .orElseThrow(() -> new ResourceNotFoundException(MessageKeys.CUSTOMER_NOT_FOUND));
     }
 
     @Transactional
     public Customer updateCustomerById(UUID customerId, @Valid UpdateCustomerRequest request) {
         Customer fetchedCustomer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new ResourceNotFoundException(messageUtil.getMessage(MessageKeys.CUSTOMER_NOT_FOUND)));
+                .orElseThrow(() -> new ResourceNotFoundException(MessageKeys.CUSTOMER_NOT_FOUND));
 
         fetchedCustomer.setUsername(request.username());
         fetchedCustomer.setEmail(request.email());

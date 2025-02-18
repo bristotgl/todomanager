@@ -8,6 +8,7 @@ public final class MessageKeys {
     public static final String USERNAME_TAKEN = "error.username.taken";
     public static final String EMAIL_REGISTERED = "error.email.registered";
     public static final String CUSTOMER_NOT_FOUND = "error.customer.not_found";
+    public static final String VALIDATION_FAILED = "error.validation_failed";
 
     // Validation Messages
     public static final String USERNAME_REQUIRED = "validation.username.required";
@@ -18,4 +19,5 @@ public final class MessageKeys {
     public static final String PASSWORD_COMPOSITION = "validation.password.composition";
     public static final String PASSWORD_REQUIRED = "validation.password.required";
     public static final String PASSWORD_SIZE = "validation.password.size";
+
 }

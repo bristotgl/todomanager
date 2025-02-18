@@ -1,4 +1,4 @@
-package io.github.siegjor.todomanager.config;
+package io.github.siegjor.todomanager.configuration;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
@@ -7,11 +7,17 @@ import org.springframework.context.support.ReloadableResourceBundleMessageSource
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 
-import java.util.Arrays;
 import java.util.Locale;
 
 @Configuration
-public class MessageConfig {
+public class I18nConfiguration {
+
+    @Bean
+    public LocaleResolver localeResolver() {
+        AcceptHeaderLocaleResolver localeResolver = new AcceptHeaderLocaleResolver();
+        localeResolver.setDefaultLocale(Locale.ENGLISH);
+        return localeResolver;
+    }
 
     @Bean
     public MessageSource messageSource() {
@@ -21,13 +27,5 @@ public class MessageConfig {
         messageSource.setDefaultLocale(Locale.US);
         messageSource.setCacheSeconds(1);
         return messageSource;
-    }
-
-    @Bean
-    public LocaleResolver localeResolver() {
-        AcceptHeaderLocaleResolver localeResolver = new AcceptHeaderLocaleResolver();
-        localeResolver.setDefaultLocale(Locale.ENGLISH);
-        localeResolver.setSupportedLocales(Arrays.asList(Locale.ENGLISH, Locale.of("pt-BR")));
-        return localeResolver;
     }
 }
