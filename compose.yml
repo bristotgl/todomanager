@@ -1,0 +1,54 @@
+services:
+  app:
+    container_name: todomanager-service
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: todomanager_db
+      DB_USER: nameless
+      DB_PASSWORD: 1234
+    depends_on:
+      - db
+    networks:
+      - todomanager-network
+
+  db:
+    image: postgres:17.2
+    container_name: todomanager-db
+    environment:
+      POSTGRES_DB: todomanager_db
+      POSTGRES_USER: nameless
+      POSTGRES_PASSWORD: 1234
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - todomanager-network
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    networks:
+      - todomanager-network
+    depends_on:
+      - db
+      - app
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+
+
+volumes:
+  db-data:
+  pgadmin-data:
+
+networks:
+  todomanager-network:
